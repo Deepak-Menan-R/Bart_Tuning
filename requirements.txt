@@ -1,0 +1,6 @@
+flask
+torch 
+transformers
+python-dotenv
+flask-login 
+requests-oauthlib

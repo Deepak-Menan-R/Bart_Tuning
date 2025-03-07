@@ -1,0 +1,8 @@
+__pycache__/
+venv/
+*.pyc
+*.pyo
+.DS_Store
+.env
+static/
+bart_finetune15/
