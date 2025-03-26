@@ -7,67 +7,129 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            scroll-behavior: smooth;
-        }
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    scroll-behavior: smooth;
+}
 
-        section {
-            width: 100%;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            color: white;
-        }
+body {
+    font-family: Arial, sans-serif;
+}
 
-        #home {
-            background-color: #343541;
-        }
+section {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+    padding: 20px;
+}
 
-        #about {
-            background-color: #444654;
-        }
+#home, #about, #reports, #results {
+    padding: 60px 20px;
+}
 
-        #reports {
-            background-color: #4e4f63;
-        }
+#home {
+    background-color: #343541;
+}
 
-        .btn-custom {
-            background-color: #0a84ff;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            text-decoration: none;
-        }
+#about {
+    background-color: #444654;
+}
 
-        .btn-custom:hover {
-            background-color: #0066cc;
-        }
+#reports {
+    background-color: #4e4f63;
+}
 
-        nav {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            padding: 10px;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-        }
+#results {
+    background-color: #565776;
+}
 
-        nav a {
-            color: white;
-            text-decoration: none;
-            font-size: 18px;
-            padding: 10px;
-        }
+.btn-custom {
+    background-color: #0a84ff;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 15px;
+    transition: background 0.3s;
+}
 
-        nav a:hover {
-            color: #0a84ff;
-        }
+.btn-custom:hover {
+    background-color: #0066cc;
+}
+
+nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 15px 0;
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    z-index: 1000;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    padding: 10px 15px;
+    transition: color 0.3s;
+}
+
+nav a:hover {
+    color: #0a84ff;
+}
+
+.container h1 {
+    margin-bottom: 20px;
+}
+
+.img-fluid {
+    border: 3px solid white;
+    padding: 5px;
+}
+
+.table {
+    margin-top: 20px;
+}
+
+.table-dark {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.table-primary {
+    background-color: #0a84ff !important;
+}
+
+.text-dark {
+    color: black !important;
+}
+
+@media (max-width: 768px) {
+    nav {
+        flex-direction: column;
+        align-items: center;
+        padding: 10px 0;
+    }
+
+    nav a {
+        font-size: 16px;
+        padding: 8px;
+    }
+
+    section {
+        height: auto;
+        padding: 40px 15px;
+    }
+}
+
     </style>
 </head>
 <body>
@@ -77,6 +139,7 @@
         <a href="#home">Home</a>
         <a href="#about">About Us</a>
         <a href="#reports">Reports</a>
+        <a href="#results">Results</a>
     </nav>
 
     <!-- Home Section -->
@@ -95,19 +158,23 @@
           <div class="row">
               <div class="col-md-3 text-center">
                   <img src="static\Deepak.jpeg" alt="Person 1" class="img-fluid rounded-circle" width="150">
-                  <p class="mt-2">Deepak Menan - Full Stack Developer</p>
+                  <p class="mt-2">Deepak Menan R</p>
+                  <p class="mt-2">CB.EN.U4CSE21014</p>
               </div>
               <div class="col-md-3 text-center">
-                  <img src="static\Deepak.jpeg" alt="Person 2" class="img-fluid rounded-circle" width="150">
-                  <p class="mt-2">Deepak Menan - Full Stack Developer</p>
+                  <img src="static\suruthi.jpg" alt="Person 2" class="img-fluid rounded-circle" width="150">
+                  <p class="mt-2">Suruthi Lavanya A</p>
+                  <p class="mt-2">CB.EN.U4CSE21262</p>
               </div>
               <div class="col-md-3 text-center">
-                  <img src="static\Deepak.jpeg" alt="Person 3" class="img-fluid rounded-circle" width="150">
-                  <p class="mt-2">Deepak Menan - Full Stack Developer</p>
+                  <img src="static\dharsan.jpg" alt="Person 3" class="img-fluid rounded-circle" width="150">
+                  <p class="mt-2">Dharsan S </p>
+                  <p class="mt-2">CB.EN.U4CSE21219</p>
               </div>
               <div class="col-md-3 text-center">
-                  <img src="static\Deepak.jpeg" alt="Person 4" class="img-fluid rounded-circle" width="150">
-                  <p class="mt-2">Deepak Menan - Full Stack Developer</p>
+                  <img src="static\deepthika.jpg" alt="Person 4" class="img-fluid rounded-circle" width="150">
+                  <p class="mt-2">Deepthika R</p>
+                  <p class="mt-2">CB.EN.U4CSE21217</p>
               </div>
           </div>
       </div>
@@ -116,13 +183,130 @@
 
     <!-- Reports Section -->
     <section id="reports">
-      <div>
-          <h1>Reports</h1>
-          <p>Access and analyze your reports here.</p>
-          <a href="static\Report.pdf" class="btn-custom" target="_blank">Report</a>
-          <a href="static\Report.pdf" class="btn-custom" target="_blank" style="margin-left: 60px;">PPT</a>
-      </div>
+    <div>
+        <h1>Reports</h1>
+        <p>Access and analyze your reports here.</p>
+        <a href="static\Report.pdf" class="btn-custom" target="_blank">Report</a>
+        <a href="static\Report.pdf" class="btn-custom" target="_blank" style="margin-left: 60px;">PPT</a>
+    </div>
     </section>
+
+
+    <!-- Results Section -->
+    <section id="results">
+        <div class="container mt-5">
+            <h1 class="text-center mb-4 text-white">Evaluation Results</h1>
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-dark">
+                    <thead>
+                        <tr class="table-primary text-dark">
+                            <th>Epoch</th>
+                            <th>Loss</th>
+                            <th>BLEU</th>
+                            <th>ROUGE-1</th> <!-- Added ROUGE-1 column -->
+                            <th>ROUGE-L</th>
+                            <th>BERTScore</th>
+                            <th>Runtime (s)</th>
+                            <th>Samples/sec</th>
+                            <th>Steps/sec</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>1.795</td>
+                            <td>0.362</td>
+                            <td>0.647</td> <!-- ROUGE-1 value for epoch 1 -->
+                            <td>0.533</td>
+                            <td>0.900</td>
+                            <td>171.49</td>
+                            <td>0.268</td>
+                            <td>0.070</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>1.175</td>
+                            <td>0.484</td>
+                            <td>0.737</td> <!-- ROUGE-1 value for epoch 3 -->
+                            <td>0.640</td>
+                            <td>0.923</td>
+                            <td>143.16</td>
+                            <td>0.321</td>
+                            <td>0.084</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>0.898</td>
+                            <td>0.528</td>
+                            <td>0.767</td> <!-- ROUGE-1 value for epoch 5 -->
+                            <td>0.681</td>
+                            <td>0.930</td>
+                            <td>144.73</td>
+                            <td>0.318</td>
+                            <td>0.083</td>
+                        </tr>
+                        <tr>
+                            <td>8</td>
+                            <td>0.647</td>
+                            <td>0.596</td>
+                            <td>0.806</td> <!-- ROUGE-1 value for epoch 8 -->
+                            <td>0.741</td>
+                            <td>0.942</td>
+                            <td>140.28</td>
+                            <td>0.328</td>
+                            <td>0.086</td>
+                        </tr>
+                        <tr>
+                            <td>10</td>
+                            <td>0.537</td>
+                            <td>0.640</td>
+                            <td>0.833</td> <!-- ROUGE-1 value for epoch 10 -->
+                            <td>0.779</td>
+                            <td>0.950</td>
+                            <td>155.08</td>
+                            <td>0.297</td>
+                            <td>0.077</td>
+                        </tr>
+                        <tr>
+                            <td>12</td>
+                            <td>0.449</td>
+                            <td>0.676</td>
+                            <td>0.852</td> <!-- ROUGE-1 value for epoch 12 -->
+                            <td>0.808</td>
+                            <td>0.956</td>
+                            <td>143.50</td>
+                            <td>0.321</td>
+                            <td>0.084</td>
+                        </tr>
+                        <tr>
+                            <td>15</td>
+                            <td>0.343</td>
+                            <td>0.736</td>
+                            <td>0.881</td> <!-- ROUGE-1 value for epoch 15 -->
+                            <td>0.849</td>
+                            <td>0.964</td>
+                            <td>144.23</td>
+                            <td>0.319</td>
+                            <td>0.083</td>
+                        </tr>
+                        <tr>
+                            <td>20</td>
+                            <td>0.217</td>
+                            <td>0.828</td>
+                            <td>0.922</td> <!-- ROUGE-1 value for epoch 20 -->
+                            <td>0.907</td>
+                            <td>0.976</td>
+                            <td>139.76</td>
+                            <td>0.329</td>
+                            <td>0.086</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+    
+
 
 
 </body>

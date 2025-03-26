@@ -38,14 +38,6 @@ class User(UserMixin):
 def load_user(user_id):
     return users.get(user_id)
 
-# Load model
-model_name = "./bart_finetune15"  
-model = BartForConditionalGeneration.from_pretrained(model_name)
-tokenizer = BartTokenizer.from_pretrained(model_name)
-
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model.to(device)
-
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -103,6 +95,14 @@ def logout():
 def generate():
     data = request.get_json()
     input_text = data.get('context', '')
+    epoch = data.get('epoch', 1) 
+    print(f"These are the datas: \n{input_text}\n{epoch}")
+    model_name = f"./model{epoch}"  
+    model = BartForConditionalGeneration.from_pretrained(model_name)
+    tokenizer = BartTokenizer.from_pretrained(model_name)
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.to(device)
 
     if not input_text:
         return jsonify({"error": "No input provided"}), 400

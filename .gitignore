@@ -4,5 +4,12 @@ venv/
 *.pyo
 .DS_Store
 .env
+Model1/
+Model3/
+Model5/
+Model8/
+Model10/
+Model12/
+Model15/
+Model20/
 static/
-bart_finetune15/

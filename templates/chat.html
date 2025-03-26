@@ -72,15 +72,21 @@
         width: 60%;
         display: flex;
         gap: 10px;
+        align-items: center;
       }
 
       textarea {
-        flex-grow: 1;
+        flex-grow: 3;
         padding: 10px;
         border-radius: 5px;
         border: none;
         resize: none;
         height: 50px;
+      }
+
+      #epochSelect {
+        flex-grow: 0; 
+        width: 100px; 
       }
 
       .btn-send {
@@ -90,33 +96,33 @@
         padding: 10px 20px;
         border-radius: 5px;
         cursor: pointer;
+        flex-grow: 0;
       }
 
       .btn-send:hover {
         background-color: #0066cc;
       }
       .btn-logout {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background-color: #ff4d4d;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-        }
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background-color: #ff4d4d;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+      }
 
-        .btn-logout:hover {
-            background-color: #cc0000;
-        }
+      .btn-logout:hover {
+        background-color: #cc0000;
+      }
 
-        h2 {
-            margin-top: 10px;
-            position: relative;
-        }
-
+      h2 {
+        margin-top: 10px;
+        position: relative;
+      }
     </style>
   </head>
   <body>
@@ -131,6 +137,16 @@
         placeholder="Enter your message..."
         required
       ></textarea>
+      <select id="epochSelect" class="form-select">
+        <option value="1">1 Epoch</option>
+        <option value="3">3 Epoch</option>
+        <option value="5">5 Epoch</option>
+        <option value="8">8 Epoch</option>
+        <option value="10">10 Epoch</option>
+        <option value="12">12 Epoch</option>
+        <option value="15">15 Epoch</option>
+        <option value="20">20 Epoch</option>
+      </select>
       <button type="submit" class="btn-send">Send</button>
     </form>
 
@@ -143,6 +159,7 @@
           event.preventDefault();
 
           let context = document.getElementById("context").value;
+          let epoch = document.getElementById("epochSelect").value;
 
           if (context.trim() === "") {
             alert("Please enter a message.");
@@ -163,7 +180,7 @@
 
           let aiMessageDiv = document.createElement("div");
           aiMessageDiv.classList.add("message", "ai-msg");
-          aiMessageDiv.innerHTML = "AI: ";
+          aiMessageDiv.innerHTML = "AI: Generating response... ⏳";
           chatContainer.appendChild(aiMessageDiv);
 
           chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -173,13 +190,13 @@
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ context: context }), 
+            body: JSON.stringify({ context: context, epoch: epoch }),
           });
 
           const data = await response.json();
 
           if (data.response) {
-            aiMessageDiv.innerHTML += wrapTextAndConvertURLs(data.response);
+            aiMessageDiv.innerHTML  = "AI: " + wrapTextAndConvertURLs(data.response);
           }
 
           chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -217,15 +234,17 @@
         }
         return content;
       }
-      document.getElementById("logoutBtn").addEventListener("click", async () => {
-    let response = await fetch("/logout");
+      document
+        .getElementById("logoutBtn")
+        .addEventListener("click", async () => {
+          let response = await fetch("/logout");
 
-    if (response.ok) {
-        window.location.href = "/login"; // Redirect user to login page
-    } else {
-        alert("Logout failed. Please try again.");
-    }
-});
+          if (response.ok) {
+            window.location.href = "/login"; // Redirect user to login page
+          } else {
+            alert("Logout failed. Please try again.");
+          }
+        });
     </script>
   </body>
 </html>
