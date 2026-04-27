@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8">
+    <title>Signup</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <style>
         body {
@@ -18,7 +18,7 @@
             position: relative;
         }
 
-        .login-container {
+        .signup-container {
             background-color: #1e1e2e;
             padding: 20px;
             border-radius: 10px;
@@ -31,9 +31,16 @@
             margin-bottom: 20px;
         }
 
+        label {
+            display: block;
+            margin-bottom: 5px;
+            text-align: left;
+            font-weight: bold;
+        }
+
         input {
             width: 100%;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             padding: 10px;
             border-radius: 5px;
             border: none;
@@ -50,16 +57,10 @@
             font-size: 16px;
         }
 
-        .google-btn {
-            background-color: #db4437;
-            margin-top: 10px;
+        button:hover {
+            background-color: #006fd6;
         }
 
-        .google-btn:hover {
-            background-color: #c1351d;
-        }
-
-        /* Back to Home button */
         .home-btn {
             position: absolute;
             top: 20px;
@@ -77,6 +78,7 @@
         .home-btn:hover {
             background-color: #5a6268;
         }
+
         p a {
             color: #0a84ff;
             text-decoration: none;
@@ -89,25 +91,21 @@
 </head>
 <body>
 
-    <!-- Back to Home Button -->
     <a href="/" class="home-btn">⬅ Back to Home</a>
 
-    <div class="login-container">
-        <h2>Login</h2>
-        <form action="/login" method="post">
-            <input type="email" name="email" placeholder="Email" required />
-            <input type="password" name="password" placeholder="Password" required />
-            <button type="submit">Login</button>
+    <div class="signup-container">
+        <h2>Signup</h2>
+        <form action="/signup" method="post">
+            <label>Email:</label>
+            <input type="email" name="email" required>
+
+            <label>Password:</label>
+            <input type="password" name="password" required>
+
+            <button type="submit">Sign Up</button>
         </form>
         <br>
-        <p>OR</p>
-
-        <a href="/login/google">
-            <button class="google-btn">Login with Google</button>
-        </a>
-        <br>
-        <br>
-        <p>Don't have an account? <a href="/signup">Sign Up</a></p>
+        <p>Already have an account? <a href="/login">Login</a></p>
     </div>
 
 </body>

@@ -1,6 +1,12 @@
-flask
-torch 
+fastapi
+uvicorn
+jinja2
+torch
 transformers
 python-dotenv
-flask-login 
-requests-oauthlib
+authlib
+pymongo
+starlette
+itsdangerous
+httpx
+python-multipart

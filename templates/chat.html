@@ -16,139 +16,244 @@
         font-family: Arial, sans-serif;
         display: flex;
         flex-direction: column;
-        align-items: center;
         height: 100vh;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+
+      .header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background-color: #343541;
+        padding: 10px 15px;
+        z-index: 90;
+        display: flex;
         justify-content: center;
+        align-items: center;
+        border-bottom: 1px solid #444654;
       }
 
       h2 {
-        margin-bottom: 20px;
+        margin: 0;
+        font-size: 1.3rem;
+        text-align: center;
+        padding: 0 30px; /* Space for logout button */
       }
 
       #chatContainer {
-        width: 60%;
-        height: 500px;
+        flex: 1;
         overflow-y: auto;
         background-color: #444654;
-        border-radius: 10px;
-        padding: 15px;
-        margin-bottom: 20px;
+        padding: 10px;
         display: flex;
         flex-direction: column;
+        margin-top: 50px; /* Space for header */
+        margin-bottom: 70px; /* Space for input area */
       }
 
       .message {
         display: flex;
-        align-items: center;
-        max-width: 60%;
+        align-items: flex-start;
+        max-width: 90%;
         word-wrap: break-word;
-        padding: 12px;
-        border-radius: 10px;
-        margin: 8px 0;
+        padding: 10px 14px;
+        border-radius: 18px;
+        margin: 6px 0;
+        font-size: 0.95rem;
+        line-height: 1.4;
       }
+      
       .user-msg {
         background-color: #0a84ff;
         color: white;
         align-self: flex-end;
-        justify-content: flex-end;
-        text-align: right;
+        margin-right: 10px;
+        border-bottom-right-radius: 4px;
       }
 
       .ai-msg {
         background-color: #4e4f63;
         color: white;
         align-self: flex-start;
-        justify-content: flex-start;
-        text-align: left;
-      }
-      .message img {
-        width: 50px;
-        height: 50px;
-        border-radius: 5px;
         margin-left: 10px;
+        border-bottom-left-radius: 4px;
       }
 
-      .input-container {
-        width: 60%;
+      .input-area {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: #343541;
+        padding: 10px;
         display: flex;
-        gap: 10px;
+        gap: 8px;
         align-items: center;
+        border-top: 1px solid #444654;
+        z-index: 80;
+      }
+
+      #chatForm {
+        width: 100%;
+        display: flex;
+        gap: 8px;
       }
 
       textarea {
-        flex-grow: 3;
-        padding: 10px;
-        border-radius: 5px;
+        flex: 1;
+        padding: 10px 14px;
+        border-radius: 18px;
         border: none;
         resize: none;
-        height: 50px;
+        background-color: #444654;
+        color: white;
+        min-height: 44px;
+        max-height: 120px;
+        font-size: 0.95rem;
+      }
+
+      textarea:focus {
+        outline: 1px solid #0a84ff;
       }
 
       #epochSelect {
-        flex-grow: 0; 
-        width: 100px; 
+        width: 70px;
+        font-size: 0.8rem;
+        height: 44px;
+        border-radius: 18px;
+        background-color: #444654;
+        color: white;
+        border: none;
+        padding: 0 8px;
       }
 
       .btn-send {
         background-color: #0a84ff;
         color: white;
         border: none;
-        padding: 10px 20px;
-        border-radius: 5px;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
         cursor: pointer;
-        flex-grow: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
       }
 
       .btn-send:hover {
         background-color: #0066cc;
       }
+      
       .btn-logout {
-        position: absolute;
-        top: 20px;
-        right: 20px;
+        position: fixed;
+        top: 10px;
+        right: 10px;
         background-color: #ff4d4d;
         color: white;
         border: none;
-        padding: 10px 20px;
-        border-radius: 5px;
+        padding: 6px 10px;
+        border-radius: 18px;
         cursor: pointer;
-        font-size: 14px;
+        font-size: 0.8rem;
+        z-index: 100;
       }
 
       .btn-logout:hover {
         background-color: #cc0000;
       }
 
-      h2 {
-        margin-top: 10px;
-        position: relative;
+      /* Mobile-specific styles */
+      @media (min-width: 768px) {
+        body {
+          max-width: 800px;
+          margin: 0 auto;
+          border-left: 1px solid #444654;
+          border-right: 1px solid #444654;
+        }
+        
+        .header {
+          position: relative;
+          padding: 15px;
+        }
+        
+        h2 {
+          font-size: 1.5rem;
+          padding: 0;
+        }
+        
+        #chatContainer {
+          margin-top: 0;
+          margin-bottom: 0;
+          padding: 15px;
+        }
+        
+        .message {
+          max-width: 70%;
+          padding: 12px 16px;
+          font-size: 1rem;
+        }
+        
+        .input-area {
+          position: relative;
+          padding: 15px;
+        }
+        
+        #epochSelect {
+          width: 90px;
+        }
+        
+        .btn-logout {
+          position: absolute;
+          right: 15px;
+        }
+      }
+
+      /* Auto-resize textarea */
+      .auto-resize {
+        overflow: hidden;
+        transition: height 0.2s;
       }
     </style>
   </head>
   <body>
-    <h2>User Requirements to Use Case</h2>
-    <button id="logoutBtn" class="btn-logout">Logout</button>
+    <div class="header">
+      <h2>User Requirements to Use Case</h2>
+      <button id="logoutBtn" class="btn-logout">Logout</button>
+    </div>
+
     <div id="chatContainer"></div>
 
-    <form id="chatForm" class="input-container">
-      <textarea
-        id="context"
-        name="context"
-        placeholder="Enter your message..."
-        required
-      ></textarea>
-      <select id="epochSelect" class="form-select">
-        <option value="1">1 Epoch</option>
-        <option value="3">3 Epoch</option>
-        <option value="5">5 Epoch</option>
-        <option value="8">8 Epoch</option>
-        <option value="10">10 Epoch</option>
-        <option value="12">12 Epoch</option>
-        <option value="15">15 Epoch</option>
-        <option value="20">20 Epoch</option>
-      </select>
-      <button type="submit" class="btn-send">Send</button>
-    </form>
+    <div class="input-area">
+      <form id="chatForm">
+        <textarea
+          id="context"
+          name="context"
+          placeholder="Enter your message..."
+          class="auto-resize"
+          required
+        ></textarea>
+        <select id="epochSelect">
+          <option value="1">1</option>
+          <option value="3">3</option>
+          <option value="5">5</option>
+          <option value="8">8</option>
+          <option value="10">10</option>
+          <option value="12">12</option>
+          <option value="15">15</option>
+          <option value="20">20</option>
+        </select>
+        <button type="submit" class="btn-send">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </form>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -172,79 +277,76 @@
             let userMessageDiv = document.createElement("div");
             userMessageDiv.classList.add("message", "user-msg");
             userMessageDiv.innerHTML = context;
-
             chatContainer.appendChild(userMessageDiv);
           }
 
           document.getElementById("context").value = "";
+          resetTextareaHeight();
 
           let aiMessageDiv = document.createElement("div");
           aiMessageDiv.classList.add("message", "ai-msg");
-          aiMessageDiv.innerHTML = "AI: Generating response... ⏳";
+          aiMessageDiv.innerHTML = "Generating response... ⏳";
           chatContainer.appendChild(aiMessageDiv);
 
           chatContainer.scrollTop = chatContainer.scrollHeight;
 
-          let response = await fetch("/generate", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ context: context, epoch: epoch }),
-          });
+          try {
+            let response = await fetch("/generate", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ context: context, epoch: epoch }),
+            });
 
-          const data = await response.json();
+            const data = await response.json();
 
-          if (data.response) {
-            aiMessageDiv.innerHTML  = "AI: " + wrapTextAndConvertURLs(data.response);
+            if (data.response) {
+              aiMessageDiv.innerHTML = wrapTextAndConvertURLs(data.response);
+            }
+          } catch (error) {
+            aiMessageDiv.innerHTML = "Error: Could not generate response";
           }
 
           chatContainer.scrollTop = chatContainer.scrollHeight;
         });
 
-      function wrapTextAndConvertURLs(content, lineLength = 200) {
+      function wrapTextAndConvertURLs(content) {
         // Replace URLs with clickable links
         const urlPattern = /(https?:\/\/[^\s]+)/g;
         content = content.replace(
           urlPattern,
-          '<a href="$1" target="_blank">$1</a>'
+          '<a href="$1" target="_blank" style="color: #0a84ff;">$1</a>'
         );
-
-        // Bold formatting fix
-        content = content.replace(/\\(.?)\\*/g, "<strong>$1</strong>");
 
         // Convert newlines to <br>
         content = content.replace(/\n/g, "<br>");
 
-        // Add formatting for list items
-        const listPattern = /^\s*-\s+(.*)/gm;
-        content = content.replace(
-          listPattern,
-          (match, item) => `<li>${item}</li>`
-        );
-
-        // Optional: Truncate long lines
-        if (lineLength) {
-          const lines = content.split("<br>").map((line) => {
-            return line.length > lineLength
-              ? line.substring(0, lineLength) + "..."
-              : line;
-          });
-          content = lines.join("<br>");
-        }
         return content;
       }
+      
       document
         .getElementById("logoutBtn")
         .addEventListener("click", async () => {
           let response = await fetch("/logout");
-
-          if (response.ok) {
-            window.location.href = "/login"; // Redirect user to login page
-          } else {
-            alert("Logout failed. Please try again.");
-          }
+          window.location.href = "/login";
         });
+        
+      // Auto-resize textarea
+      const textarea = document.getElementById("context");
+      function resetTextareaHeight() {
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+      }
+      
+      textarea.addEventListener('input', resetTextareaHeight);
+      resetTextareaHeight();
+      
+      // Initial scroll to bottom
+      window.addEventListener('load', () => {
+        const chatContainer = document.getElementById("chatContainer");
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      });
     </script>
   </body>
 </html>

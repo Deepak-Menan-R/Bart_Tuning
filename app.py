@@ -1,120 +1,231 @@
-from flask import Flask, render_template, jsonify, request, redirect, url_for, session
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-from requests_oauthlib import OAuth2Session
+from fastapi import FastAPI, Request, Depends, HTTPException, Form
+import requests
+from huggingface_hub import hf_hub_download
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
+from fastapi.templating import Jinja2Templates
+from fastapi.security import OAuth2AuthorizationCodeBearer
+from starlette.middleware.sessions import SessionMiddleware
+from fastapi.middleware.cors import CORSMiddleware
+from authlib.integrations.starlette_client import OAuthError
+from starlette.config import Config
+from starlette.requests import Request
+from authlib.integrations.starlette_client import OAuth
 import os
-from dotenv import load_dotenv
+import hashlib
+from pymongo.mongo_client import MongoClient
 import torch
 from transformers import BartForConditionalGeneration, BartTokenizer
+from dotenv import load_dotenv
 
+# ✅ Load environment variables
 load_dotenv()
 
-app = Flask(__name__)
+app = FastAPI()
 
-os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+# ✅ Ensure SessionMiddleware is configured correctly
+# ✅ Add CORS Middleware separately
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Change to specific origins in production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-# Flask-Login setup
-app.secret_key = os.getenv('SECRET_KEY')
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = 'login'
+# ✅ Add Session Middleware separately
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=os.getenv("SECRET_KEY", "defaultsecret"),  # Ensure SECRET_KEY is set
+    session_cookie="session",  
+    same_site="lax",  
+    https_only=True  
+)
 
-# OAuth configuration
-client_id = os.getenv('GOOGLE_CLIENT_ID')
-client_secret = os.getenv('GOOGLE_CLIENT_SECRET')
-authorization_base_url = 'https://accounts.google.com/o/oauth2/auth'
-token_url = 'https://oauth2.googleapis.com/token'
-redirect_uri = 'http://127.0.0.1:5000/callback'
-scope = ['profile', 'email']
+# ✅ OAuth configuration
+oauth = OAuth()
+oauth.register(
+    name="google",
+    client_id=os.getenv("GOOGLE_CLIENT_ID"),
+    client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
+    server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
+    authorize_url="https://accounts.google.com/o/oauth2/auth",
+    access_token_url="https://oauth2.googleapis.com/token",
+    redirect_uri="https://mrcodder-barttune.hf.space/callback",  # ✅ Fix this
+    client_kwargs={"scope": "openid email profile"},
+)
 
+templates = Jinja2Templates(directory="templates")
 users = {}
 
-class User(UserMixin):
-    def __init__(self, user_id, name, email):
-        self.id = user_id
-        self.name = name
-        self.email = email
+client = MongoClient(os.getenv("MONGO_URI"))
+db = client["user_db"]
+users_collection = db["users"]
 
-@login_manager.user_loader
-def load_user(user_id):
-    return users.get(user_id)
+@app.get("/", response_class=HTMLResponse)
+def index(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+# Helper to hash passwords
+def hash_password(password: str) -> str:
+    return hashlib.sha256(password.encode()).hexdigest()
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
+# --- Signup Routes ---
+@app.get("/signup", response_class=HTMLResponse)
+def signup_page(request: Request):
+    return templates.TemplateResponse("signup.html", {"request": request})
 
-        # Mock check: Replace with actual user authentication
-        if email == "user@example.com" and password == "password":
-            user = User(email, "Test User", email)
-            users[email] = user
-            login_user(user)
-            return redirect(url_for('chat'))
+@app.post("/signup")
+async def signup(request: Request, email: str = Form(...), password: str = Form(...)):
+    if users_collection.find_one({"email": email}):
+        return JSONResponse(content={"error": "Email already registered"}, status_code=400)
+    
+    users_collection.insert_one({
+        "email": email,
+        "password": hash_password(password)
+    })
+    return RedirectResponse(url="/login", status_code=302)
 
-        return "Invalid credentials", 401
+# --- Login Routes ---
+@app.get("/login", response_class=HTMLResponse)
+def login_page(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request})
 
-    return render_template('login.html')
+@app.post("/login")
+async def login(request: Request, email: str = Form(...), password: str = Form(...)):
+    user = users_collection.find_one({"email": email})
+    if user and user["password"] == hash_password(password):
+        request.session["user"] = {"email": email}
+        return RedirectResponse(url="/chat", status_code=302)
+    
+    return JSONResponse(content={"error": "Invalid credentials"}, status_code=401)
 
-@app.route('/login/google')
-def login_google():
-    google = OAuth2Session(client_id, scope=scope, redirect_uri=redirect_uri)
-    authorization_url, state = google.authorization_url(authorization_base_url)
-    session['oauth_state'] = state
-    return redirect(authorization_url)
+@app.get("/login/google")
+async def login_google(request: Request):
+    try:
+        raw_uri = request.url_for("auth_google_callback")  # Get URI before modification
+        print(f"Raw Redirect URI: {raw_uri}")  # Debugging
 
-@app.route('/callback')
-def callback():
-    google = OAuth2Session(client_id, state=session['oauth_state'], redirect_uri=redirect_uri)
-    token = google.fetch_token(token_url, client_secret=client_secret, authorization_response=request.url)
+        # Ensure it is a string before replacing
+        redirect_uri = str(raw_uri).replace("http://", "https://") 
+        return await oauth.google.authorize_redirect(request, redirect_uri)
+    except Exception as e:
+        print(f"Google OAuth Error: {e}")  # Debugging
+        return JSONResponse(content={"error": str(e)}, status_code=500)
 
-    google = OAuth2Session(client_id, token=token)
-    user_info = google.get('https://www.googleapis.com/oauth2/v1/userinfo').json()
 
-    user = User(user_info['id'], user_info['name'], user_info['email'])
-    users[user_info['id']] = user
-    login_user(user)
+@app.get("/callback", name="auth_google_callback")
+async def auth_google_callback(request: Request):
+    try:
+        token = await oauth.google.authorize_access_token(request)
+        if not token:
+            raise HTTPException(status_code=400, detail="Failed to retrieve token.")
 
-    return redirect(url_for('chat'))
+        user_info = token.get("userinfo")
+        if not user_info:
+            user_info = await oauth.google.parse_id_token(request, token)
+        
+        if not user_info:
+            raise HTTPException(status_code=400, detail="Failed to retrieve user information.")
 
-@app.route('/chat')
-@login_required
-def chat():
-    return render_template('chat.html', user=current_user)
+        # Store user in session
+        request.session["user"] = dict(user_info)
+        return RedirectResponse(url="/chat")
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=400)
 
-@app.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    return redirect(url_for('index'))
+@app.get("/chat", response_class=HTMLResponse)
+def chat(request: Request):
+    user = request.session.get("user")
+    if not user:
+        return RedirectResponse(url="/login", status_code=302)
+    return templates.TemplateResponse("chat.html", {"request": request, "user": user})
 
-@app.route('/generate', methods=['POST'])
-def generate():
-    data = request.get_json()
-    input_text = data.get('context', '')
-    epoch = data.get('epoch', 1) 
-    print(f"These are the datas: \n{input_text}\n{epoch}")
-    model_name = f"./model{epoch}"  
-    model = BartForConditionalGeneration.from_pretrained(model_name)
-    tokenizer = BartTokenizer.from_pretrained(model_name)
+@app.get("/logout")
+def logout(request: Request):
+    request.session.pop("user", None)
+    return RedirectResponse(url="/", status_code=302)
 
+# ✅ List of epochs to preload
+EPOCHS = [1, 3, 5, 8, 10, 12, 15, 20]
+MODEL_CACHE = {}  # ✅ Dictionary to store preloaded models
+
+    
+def load_model(epoch):
+    """Load model & tokenizer from local directory."""
+    # ✅ Load model & tokenizer from local path
+    repo_id = f"MrCodder/BartBaseFineTuningModel{epoch}"
+    model = BartForConditionalGeneration.from_pretrained(repo_id)
+    tokenizer = BartTokenizer.from_pretrained(repo_id)
+
+    # ✅ Move model to GPU if available
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
 
+    # ✅ Store in cache
+    MODEL_CACHE[str(epoch)] = (model, tokenizer)
+    print(f"✅ Model for epoch {epoch} loaded successfully!")
+
+
+@app.on_event("startup")
+def initialize_models():
+    """Download and load all models at startup."""
+    print("🚀 Downloading & Loading all models...")
+    for epoch in EPOCHS:
+        load_model(epoch)
+    print("✅ All models are ready to use!")
+
+@app.post("/generate")
+def generate(data: dict):
+    """Generate text using the preloaded model."""
+    input_text = data.get("context", "")
+    epoch = data.get("epoch", 1)
     if not input_text:
-        return jsonify({"error": "No input provided"}), 400
+        print("❌ No input provided!")
+        raise HTTPException(status_code=400, detail="No input provided")
+    
+    if epoch not in MODEL_CACHE:
+        print(f"❌ Model for epoch {epoch} not found!")
+        raise HTTPException(status_code=400, detail=f"Model for epoch {epoch} not found.")
 
-    inputs = tokenizer(input_text, return_tensors="pt").to(device)
+    try:
+        model, tokenizer = MODEL_CACHE[epoch]
+        print("✅ Model & tokenizer loaded!")
 
-    with torch.no_grad():
-        summary_ids = model.generate(inputs['input_ids'], max_length=150, num_beams=5, early_stopping=True)
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        inputs = tokenizer(input_text, return_tensors="pt")
+        print(f"✅ Tokenized Input: {inputs}")
 
-    response = tokenizer.decode(summary_ids[0], skip_special_tokens=True)
+        inputs = inputs.to(device)  # Move input tensors to device
+        print("✅ Moved inputs to device!")
 
-    return jsonify({"response": response})
+        with torch.no_grad():
+            summary_ids = model.generate(
+                inputs['input_ids'], max_length=150, num_beams=5, early_stopping=True
+            )
+        print(f"✅ Generated output: {summary_ids}")
 
-if __name__ == '__main__':
-    app.run(debug=True)
+        response = tokenizer.decode(summary_ids[0], skip_special_tokens=True)
+        print(f"✅ Final Response: {response}")
+
+        return {"response": response}
+
+    except Exception as e:
+        print(f"❌ Error occurred: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(
+        app, 
+        host="0.0.0.0", 
+        port=7860, 
+        log_level="info", 
+        reload=True, 
+        workers=1, 
+        use_colors=True, 
+        env_file=".env", 
+        trust_env=True  # ✅ Ensure environment variables work properly
+    )
